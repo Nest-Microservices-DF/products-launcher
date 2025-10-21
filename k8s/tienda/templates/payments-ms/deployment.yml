@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-ms
+  labels:
+    app: payments-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payments-ms
+  template:
+    metadata:
+      labels:
+        app: payments-ms
+    spec:
+      imagePullSecrets:
+        - name: gcr-json-key
+      containers:
+        - name: payments-ms
+          image: southamerica-east1-docker.pkg.dev/microservicios-474900/image-registry/payments-ms:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NATS_SERVERS
+              value: "nats://nats"
+            - name: STRIPE_SUCCESS_URL
+              value: "http://localhost:3003/payments/success"
+            - name: STRIPE_CANCEL_URL
+              value: "http://localhost:3003/payments/cancel"
+            - name: STRIPE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: payments-secrets
+                  key: STRIPE_SECRET
+            - name: STRIPE_ENDPOINT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: payments-secrets
+                  key: STRIPE_ENDPOINT_SECRET

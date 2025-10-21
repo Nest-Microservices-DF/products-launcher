@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-ms
+  labels:
+    app: products-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: products-ms
+  template:
+    metadata:
+      labels:
+        app: products-ms
+    spec:
+      imagePullSecrets:
+        - name: gcr-json-key
+      containers:
+        - name: products-ms
+          image: southamerica-east1-docker.pkg.dev/microservicios-474900/image-registry/products-ms:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NATS_SERVERS
+              value: "nats://nats"
+            - name: DATABASE_URL
+              value: "file:./dev.db"
+

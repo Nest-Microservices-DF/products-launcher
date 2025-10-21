@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-ms
+  labels:
+    app: orders-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-ms
+  template:
+    metadata:
+      labels:
+        app: orders-ms
+    spec:
+      imagePullSecrets:
+        - name: gcr-json-key
+      containers:
+        - name: orders-ms
+          image: southamerica-east1-docker.pkg.dev/microservicios-474900/image-registry/orders-ms:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NATS_SERVERS
+              value: "nats://nats"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: orders-secrets
+                  key: database_url
+
+

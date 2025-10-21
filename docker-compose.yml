@@ -44,18 +44,6 @@ services:
       - NATS_SERVERS=nats://nats-server:4222
       - DATABASE_URL=file:./dev.db
 
-  orders-ms:
-    build: ./orders-ms
-    depends_on:
-      - nats-server
-    volumes:
-      - ./orders-ms/src:/usr/src/app/src
-    command: npm run start:dev
-    environment:
-      - PORT=3002
-      - DATABASE_URL=postgresql://postgres:123456@orders-db:5432/ordersdb?schema=public
-      - NATS_SERVERS=nats://nats-server:4222
-
   orders-db:
     container_name: orders_database
     image: postgres:16.2
@@ -68,6 +56,19 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=123456
       - POSTGRES_DB=ordersdb
+
+  orders-ms:
+    build: ./orders-ms
+    depends_on:
+      - nats-server
+      - orders-db
+    volumes:
+      - ./orders-ms/src:/usr/src/app/src
+    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+    environment:
+      - PORT=3002
+      - DATABASE_URL=postgresql://postgres:123456@orders-db:5432/ordersdb?schema=public
+      - NATS_SERVERS=nats://nats-server:4222
 
   payments-ms:
     container_name: payments-ms

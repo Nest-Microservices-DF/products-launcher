@@ -1,0 +1,7 @@
+image:
+  repository: southamerica-east1-docker.pkg.dev/microservicios-474900/image-registry/client-gateway
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 3000
